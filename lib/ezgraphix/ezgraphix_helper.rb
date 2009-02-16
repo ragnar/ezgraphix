@@ -17,7 +17,7 @@ module EzgraphixHelper
   def render_ezgraphix(g)
     style = get_style(g)
     xml_data = g.to_xml
-    h = Hpricot("<div id='#{g.div_name}'></div>\n <script type='text/javascript'> var ezChart = new FusionCharts('#{f_type(g.c_type)}', '#{g.div_name}', '#{g.w}', '#{g.h}','0','0'); ezChart.setDataXML('#{g.to_xml}'); ezChart.render('#{g.div_name}');</script>")
+    h = Hpricot("<div id='#{g.div_name}'></div>\n <script type='text/javascript'> var ezChart = new FusionCharts('#{f_type(g.c_type)}', '#{g.div_name}', '#{g.w}', '#{g.h}','0','0'); ezChart.setDataXML('#{g.to_xml.to_xs}'); ezChart.render('#{g.div_name}');</script>")
     h.to_html
   end
   
@@ -40,6 +40,12 @@ module EzgraphixHelper
       type = '/FusionCharts/FCF_Line.swf'
     when 'doug2d'
       type = '/FusionCharts/FCF_Doughnut2D.swf'
+    when 'ms_col2Dcombi'
+      type = '/FusionCharts/FCF_MSColumn2DLineDY.swf'
+    when 'ms_col3Dcombi'
+      type = '/FusionCharts/FCF_MSColumn3DLineDY.swf'
+    when 'ms_col3d'
+      type = '/FusionCharts/FCF_MSColumn3D.swf'
     end
   end
       
