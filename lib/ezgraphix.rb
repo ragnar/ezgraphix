@@ -20,6 +20,9 @@
 
 unless defined? Ezgraphix
   module Ezgraphix
+    require File.dirname(__FILE__) + '/ezgraphix/data/set'
+    require File.dirname(__FILE__) + '/ezgraphix/data/dataset'
+    require File.dirname(__FILE__) + '/ezgraphix/data/lineset'
     require File.dirname(__FILE__) + '/ezgraphix/ezgraphix_helper'
     require 'builder'
 
@@ -80,8 +83,9 @@ unless defined? Ezgraphix
       def initialize(options={})
         @render_options = defaults.merge!(options)
         @data = Hash.new
-        @data_sets = Hash.new
+        @data_sets = Array.new
         @categories = Array.new
+        @line_set = nil
       end
 
       #Returns defaults render options.
@@ -153,56 +157,33 @@ unless defined? Ezgraphix
         @categories = categories
       end
 
-      def add_dataset( name, data, options = {} )
-        @data_sets[name] = { :data => data, :options => options }
+      def add_dataset( data, options = {} )
+        @data_sets << { :data => data, :options => options }
       end
 
-      #Returns a random color from the Graphic#COLORS collection.
-      def rand_color
-        COLORS[rand(Graphic::COLORS.size - 1)]
+      def set_lineset( ls )
+        @line_set = ls
       end
 
       #Builds the xml to feed the chart.
       def to_xml
-        if self.data.empty?
-          return to_xml_ms
-        else
-          return to_xml_ss
-        end
-      end
-
-      #Build xml for multi series graphs
-      def to_xml_ms
         options = parse_options(self.render_options)
-        g_xml = Builder::XmlMarkup.new
-        escaped_xml = g_xml.graph(options) do
-          g_xml.categories do |categories|
+        xml = Builder::XmlMarkup.new
+
+        xml.tag!( :graph, options ) do |graph|
+          graph.tag!( :categories ) do |categories|
             @categories.each do |category|
-              categories.category :name => category
+              categories.tag!( :category, :name => category)
             end
-          end
+          end unless @categories.empty?
 
-          @data_sets.each do |category, content|
-            g_xml.dataset( {"seriesName" => category, :color => self.rand_color}.merge( content[:options] )) do |dset|
-              content[:data].each do |v|
-                dset.set :value => v
-              end
-            end
-          end
-        end
-        escaped_xml
-      end
+          @data_sets.each do |content|
+            content[:data].to_xml(graph)
+          end unless @data_sets.empty?
 
-      #Build xml for single series graphs
-      def to_xml_ss
-        options = parse_options(self.render_options)
-        g_xml = Builder::XmlMarkup.new
-        escaped_xml = g_xml.graph(options) do
-          self.data.each{ |k,v|
-            g_xml.set :value => v, :name => k, :color => self.rand_color
-          }
+          @line_set.to_xml(graph) unless @line_set.nil?
         end
-        escaped_xml
+        xml.target!
       end
     end
   end
