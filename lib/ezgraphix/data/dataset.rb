@@ -28,11 +28,9 @@ module Ezgraphix
             end
           end
         else
-          k = ""
           self.sets.each do |s|
-            k = s.to_xml(builder)
+            s.to_xml(builder)
           end
-          k
         end
       end
 
