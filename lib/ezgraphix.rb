@@ -85,7 +85,7 @@ unless defined? Ezgraphix
         @data = Hash.new
         @data_sets = Array.new
         @categories = Array.new
-        @line_set = nil
+        @line_sets = Array.new
       end
 
       #Returns defaults render options.
@@ -161,8 +161,8 @@ unless defined? Ezgraphix
         @data_sets << { :data => data, :options => options }
       end
 
-      def set_lineset( ls )
-        @line_set = ls
+      def add_lineset( ls )
+        @line_sets << ls
       end
 
       #Builds the xml to feed the chart.
@@ -181,7 +181,9 @@ unless defined? Ezgraphix
             content[:data].to_xml(graph)
           end unless @data_sets.empty?
 
-          @line_set.to_xml(graph) unless @line_set.nil?
+          @line_sets.each do |line|
+            line.to_xml(graph)
+          end unless @line_sets.empty?
         end
         xml.target!
       end
