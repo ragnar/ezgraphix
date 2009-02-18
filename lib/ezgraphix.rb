@@ -26,43 +26,46 @@ unless defined? Ezgraphix
     require File.dirname(__FILE__) + '/ezgraphix/ezgraphix_helper'
     require 'builder'
 
-   # This class contains the neccesary methods and attributes to render a Graphic,
-   # most of time you will be playing with the render_options and _data_ attributes to
-   # define the graphic's properties, also you can re-define those properties easily by accessing them
-   # at any time.
-   #
-   # == Example
-   # Define the Graphic in your controller.
-   #   @g = Ezgraphix::Graphic.new  # render_options can also be passed from here,
-   #                                # @g = Ezgraphix::Graphic.new(:div_name => 'my_graph', :w => 400)
-   #
-   #   @g.defaults
-   #   => {:c_type=>'col3d', :div_name=>'ez_graphic', :w=>300, :h=>300}
-   #
-   #   @g.render_options #equals to defaults if not options were passed to the initializer.
-   #   => {:c_type=>'col3d', :div_name=>'ez_graphic', :w=>300, :h=>300}
-   #
-   # It's always a good idea to change the div_name if your planning to render more
-   # than one Graphic in the same page, this makes the graphic unique.
-   #   @g.render_options(:div_name => 'my_graph')
-   #   => {:c_type=>'col3d', :div_name=>'my_graph', :w=>300, :h=>300}
-   #
-   # In order to render, you have to feed the graphic with data you want to show, Ezgraphix uses
-   # a Hash to represent that data where the keys represents names, for example:
-   #   @g.data = {:ruby => 1, :perl => 2, :smalltalk => 3}
-   #   => {:smalltalk => 3, :ruby => 1, :perl => 2}
-   #
-   # With this information, the graphic will be a column 3D, with a size of 300x300 pixels, indentified with the
-   # "my_graph" name, with 3 columns containing the names: 'ruby', 'perl', and 'smalltalk' for the values 1,2,3 respectively.
-   #
-   # To render the graphic, from a view call the render_ezgraphix method defined in the Ezgraphix::Helper module.
-   #  <%= render_ezgraphix @g %>
-   #
+    class InvalidChartType < StandardError; end #:nodoc:
+
+    # This class contains the neccesary methods and attributes to render a Graphic,
+    # most of time you will be playing with the render_options and _data_ attributes to
+    # define the graphic's properties, also you can re-define those properties easily by accessing them
+    # at any time.
+    #
+    # == Example
+    # Define the Graphic in your controller.
+    #   @g = Ezgraphix::Graphic.new  # render_options can also be passed from here,
+    #                                # @g = Ezgraphix::Graphic.new(:div_name => 'my_graph', :w => 400)
+    #
+    #   @g.defaults
+    #   => {:c_type=>'col3d', :div_name=>'ez_graphic', :w=>300, :h=>300}
+    #
+    #   @g.render_options #equals to defaults if not options were passed to the initializer.
+    #   => {:c_type=>'col3d', :div_name=>'ez_graphic', :w=>300, :h=>300}
+    #
+    # It's always a good idea to change the div_name if your planning to render more
+    # than one Graphic in the same page, this makes the graphic unique.
+    #   @g.render_options(:div_name => 'my_graph')
+    #   => {:c_type=>'col3d', :div_name=>'my_graph', :w=>300, :h=>300}
+    #
+    # In order to render, you have to feed the graphic with data you want to show, Ezgraphix uses
+    # a Hash to represent that data where the keys represents names, for example:
+    #   @g.data = {:ruby => 1, :perl => 2, :smalltalk => 3}
+    #   => {:smalltalk => 3, :ruby => 1, :perl => 2}
+    #
+    # With this information, the graphic will be a column 3D, with a size of 300x300 pixels, indentified with the
+    # "my_graph" name, with 3 columns containing the names: 'ruby', 'perl', and 'smalltalk' for the values 1,2,3 respectively.
+    #
+    # To render the graphic, from a view call the render_ezgraphix method defined in the Ezgraphix::Helper module.
+    #  <%= render_ezgraphix @g %>
+    #
     class Graphic
       include EzgraphixHelper
 
-      #Hash containing the names and values to render.
-      attr_accessor :data
+      #attr_accessor :swf_path
+      attr_accessor :css_class
+      attr_reader :chart_type
 
       # Hash containing all the render options. basic options are:
       # * <tt> :c_type</tt> -- Chart type to render.
@@ -72,6 +75,28 @@ unless defined? Ezgraphix
       # Full list of options are listed below render_options
       attr_accessor :render_options
 
+      SWF_PUBLIC_PATH = "/FusionCharts"
+      CHART_TYPES = ["Area2D", "Bar2D", "Bubble", "Column2D", "Column3D",
+                     "Doughnut2D", "Doughnut3D", "Line", "MSArea", "MSBar2D",
+                     "MSBar3D", "MSColumn2D", "MSColumn3D", "MSColumn3DLineDY",
+                     "MSColumnLine3D", "MSCombi2D", "MSCombi3D", "MSCombiDY2D",
+                     "MSLine", "MSStackedColumn2D", "MSStackedColumn2DLineDY",
+                     "Pie2D", "Pie3D", "SSGrid", "Scatter", "ScrollArea2D",
+                     "ScrollColumn2D", "ScrollCombi2D", "ScrollCombiDY2D",
+                     "ScrollLine2D", "ScrollStackedColumn2D", "StackedArea2D",
+                     "StackedBar2D", "StackedBar3D", "StackedColumn2D",
+                     "StackedColumn3D", "StackedColumn3DLineDY", "Waterfall2D"
+      ].freeze
+
+      FCF_CHART_TYPES = ["FCF_Area2D", "FCF_Bar2D", "FCF_Candlestick",
+                         "FCF_Column2D", "FCF_Column3D", "FCF_Doughnut2D",
+                         "FCF_Funnel", "FCF_Gantt", "FCF_Line", "FCF_MSArea2D",
+                         "FCF_MSBar2D", "FCF_MSColumn2D", "FCF_MSColumn2DLineDY",
+                         "FCF_MSColumn3D", "FCF_MSColumn3DLineDY", "FCF_MSLine",
+                         "FCF_Pie2D", "FCF_Pie3D", "FCF_StackedArea2D",
+                         "FCF_StackedBar2D", "FCF_StackedColumn2D", "FCF_StackedColumn3D"
+      ].freeze
+
       COLORS = ['AFD8f6', '8E468E', '588526', 'B3A000', 'B2FF66',
                 'F984A1', 'A66EDD', 'B2FF66', '3300CC', '000033',
                 '66FF33', '000000', 'FFFF00', '669966', 'FF3300',
@@ -80,7 +105,15 @@ unless defined? Ezgraphix
 
       #Creates a new Graphic with the given _options_, if no _options_ are specified,
       #the new Graphic will be initalized with the Graphic#defaults options.
-      def initialize(options={})
+      def initialize( chart_type, options={}, debug = false, fcf = false)
+        case fcf
+        when false
+          raise InvalidChartType, "Chart type must be one of these #{CHART_TYPES.join(", ")}" unless CHART_TYPES.include?(chart_type)
+        when true
+          raise InvalidChartType, "Chart type must be one of these #{FCF_CHART_TYPES.join(", ")}" unless FCF_CHART_TYPES.include?(chart_type)
+        end
+        @chart_type = chart_type
+        @debug_mode = debug
         @render_options = defaults.merge!(options)
         @data = Hash.new
         @data_sets = Array.new
@@ -88,9 +121,13 @@ unless defined? Ezgraphix
         @line_sets = Array.new
       end
 
+      def debug?
+        @debug_mode ? 1 : 0
+      end
+
       #Returns defaults render options.
       def defaults
-        {:c_type => 'col3d', :w => 300, :h => 300, :div_name => 'ez_graphic'}
+        {:w => 400, :h => 300, :div_name => 'ez_graphix'}
       end
 
       # Receives a Hash containing a set of render options that will be merged with the current configuration.
@@ -131,7 +168,7 @@ unless defined? Ezgraphix
 
      #Returns the Graphic's type.
       def c_type
-        self.render_options[:c_type]
+        @chart_type
       end
 
       #Returns the Graphic's width.

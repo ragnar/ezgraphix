@@ -1,65 +1,24 @@
-module EzgraphixHelper
-  require 'hpricot'
+module Ezgraphix
+  module EzgraphixHelper
 
-  def get_style(g)
-    case g.c_type
-    when 'col3d'
-      style = 'render_simple'
-    when 'bar2d'
-      style = 'render_simple'
-    when 'col2d'
-      style = 'render_simple'
+    #method used in ActionView::Base to render graphics.
+    def render_ezgraphix(g)
+      content_tag( :div, :id => g.div_name, :class => g.css_class || nil) do
+        javascript_tag() do
+          <<-END
+          var ezChart = new FusionCharts('#{f_type(g)}', '#{g.div_name}', '#{g.w}', '#{g.h}','#{g.debug?}','0');
+          ezChart.setDataXML('#{g.to_xml}');
+          ezChart.render('#{g.div_name}');
+          END
+        end
+      end
     end
-    style
-  end
   
-  #method used in ActionView::Base to render graphics.
-  def render_ezgraphix(g)
-    style = get_style(g)
-    xml_data = g.to_xml
-    h = Hpricot("<div id='#{g.div_name}'></div>\n <script type='text/javascript'> var ezChart = new FusionCharts('#{f_type(g.c_type)}', '#{g.div_name}', '#{g.w}', '#{g.h}','0','0'); ezChart.setDataXML('#{g.to_xml}'); ezChart.render('#{g.div_name}');</script>")
-    h.to_html
-  end
-  
-  def f_type(c_type)
-    type = ''
-    case c_type
-    when 'col3d'
-      type = '/FusionCharts/FCF_Column3D.swf'
-    when 'bar2d'
-      type = '/FusionCharts/FCF_Bar2D.swf'
-    when 'barline3d'
-      type = '/FusionCharts/FCF_MSColumn3DLineDY.swf'
-    when 'col2d'
-      type = '/FusionCharts/Column2D.swf'
-    when 'ms_col2d'
-      type = '/FusionCharts/MSColumn2D.swf'
-    when 'ms_combi2d'
-      type = '/FusionCharts/MSCombi2D.swf'
-    when 'ms_combidy2d'
-      type = '/FusionCharts/MSCombiDY2D.swf'
-    when 'pie2d'
-      type = '/FusionCharts/FCF_Pie2D.swf'
-    when 'pie3d'
-      type = '/FusionCharts/Pie3D.swf'
-    when 'line'
-      type = '/FusionCharts/Line.swf'
-    when 'ms_line'
-      type = '/FusionCharts/MSLine.swf'
-    when 'doug2d'
-      type = '/FusionCharts/FCF_Doughnut2D.swf'
-    when 'ms_col2Dcombi'
-      type = '/FusionCharts/MSStackedColumn2DLineDY.swf'
-    when 'ms_col3Dcombi'
-      type = '/FusionCharts/FCF_MSColumn3DLineDY.swf'
-    when 'ms_col3d'
-      type = '/FusionCharts/FCF_MSColumn3D.swf'
-    when 'ms_stacked_col_2d'
-      type = '/FusionCharts/StackedColumn2D.swf'
+    def f_type(graph)
+      "#{Ezgraphix::Graphic::SWF_PUBLIC_PATH}/#{graph.chart_type}.swf"
     end
-  end
       
-  def parse_options(options)
+    def parse_options(options)
     original_names = Hash.new
     
     options.each{|k,v|
@@ -116,4 +75,5 @@ module EzgraphixHelper
       }
     original_names
   end    
+  end
 end
