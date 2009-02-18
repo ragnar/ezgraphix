@@ -31,21 +31,31 @@ module EzgraphixHelper
     when 'barline3d'
       type = '/FusionCharts/FCF_MSColumn3DLineDY.swf'
     when 'col2d'
-      type = '/FusionCharts/FCF_Column2D.swf'
+      type = '/FusionCharts/Column2D.swf'
+    when 'ms_col2d'
+      type = '/FusionCharts/MSColumn2D.swf'
+    when 'ms_combi2d'
+      type = '/FusionCharts/MSCombi2D.swf'
+    when 'ms_combidy2d'
+      type = '/FusionCharts/MSCombiDY2D.swf'
     when 'pie2d'
       type = '/FusionCharts/FCF_Pie2D.swf'
     when 'pie3d'
       type = '/FusionCharts/FCF_Pie3D.swf'
     when 'line'
-      type = '/FusionCharts/FCF_Line.swf'
+      type = '/FusionCharts/Line.swf'
+    when 'ms_line'
+      type = '/FusionCharts/MSLine.swf'
     when 'doug2d'
       type = '/FusionCharts/FCF_Doughnut2D.swf'
     when 'ms_col2Dcombi'
-      type = '/FusionCharts/FCF_MSColumn2DLineDY.swf'
+      type = '/FusionCharts/MSStackedColumn2DLineDY.swf'
     when 'ms_col3Dcombi'
       type = '/FusionCharts/FCF_MSColumn3DLineDY.swf'
     when 'ms_col3d'
       type = '/FusionCharts/FCF_MSColumn3D.swf'
+    when 'ms_stacked_col_2d'
+      type = '/FusionCharts/StackedColumn2D.swf'
     end
   end
       
@@ -100,6 +110,8 @@ module EzgraphixHelper
         original_names['xAxisName'] = v
       when :animation
         original_names['animation'] = v
+      else
+        original_names[k] = v
       end
       }
     original_names

@@ -21,7 +21,7 @@ module Ezgraphix
       
       def to_xml( builder )
         if @incl_root && @incl_root == true
-          o = sets.first.is_a?(Ezgraphix::Data::Dataset) ? {} : {:color => rand_color}.merge(@opts)
+          o = sets.first.is_a?(Ezgraphix::Data::Dataset) ? {} : @opts #{:color => rand_color}.merge(@opts) #@opts
           builder.tag!( :dataset, o ) do |ds|
             sets.each do |s|
               s.to_xml(ds )
