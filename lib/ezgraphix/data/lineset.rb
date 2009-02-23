@@ -1,10 +1,11 @@
+require File.dirname(__FILE__) + '/lineset/set'
+
 module Ezgraphix
   module Data
     class Lineset
       attr_reader :sets
 
       def initialize( o )
-        @incl_root = o.delete(:include_root)
         @opts = o
         @sets = Array.new
       end

@@ -1,3 +1,5 @@
+require File.dirname(__FILE__) + '/dataset/set'
+
 module Ezgraphix
   module Data
     class Dataset

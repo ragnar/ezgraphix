@@ -20,9 +20,7 @@
 
 unless defined? Ezgraphix
   module Ezgraphix
-    require File.dirname(__FILE__) + '/ezgraphix/data/set'
-    require File.dirname(__FILE__) + '/ezgraphix/data/dataset'
-    require File.dirname(__FILE__) + '/ezgraphix/data/lineset'
+    require File.dirname(__FILE__) + '/ezgraphix/data'
     require File.dirname(__FILE__) + '/ezgraphix/ezgraphix_helper'
     require 'builder'
 
@@ -66,6 +64,8 @@ unless defined? Ezgraphix
       #attr_accessor :swf_path
       attr_accessor :css_class
       attr_reader :chart_type
+      
+      attr_accessor :trend_lines
 
       # Hash containing all the render options. basic options are:
       # * <tt> :c_type</tt> -- Chart type to render.
@@ -115,10 +115,10 @@ unless defined? Ezgraphix
         @chart_type = chart_type
         @debug_mode = debug
         @render_options = defaults.merge!(options)
-        @data = Hash.new
         @data_sets = Array.new
         @categories = Array.new
         @line_sets = Array.new
+        @trend_lines = nil
       end
 
       def debug?
@@ -210,7 +210,11 @@ unless defined? Ezgraphix
         xml.tag!( :graph, options ) do |graph|
           graph.tag!( :categories ) do |categories|
             @categories.each do |category|
-              categories.tag!( :category, :name => category)
+              if category.is_a?( Ezgraphix::Data::Dataset::Vline )
+                category.to_xml(categories)
+              else
+                categories.tag!( :category, :name => category)
+              end
             end
           end unless @categories.empty?
 
@@ -221,6 +225,8 @@ unless defined? Ezgraphix
           @line_sets.each do |line|
             line.to_xml(graph)
           end unless @line_sets.empty?
+          
+          @trend_lines.to_xml(graph) unless @trend_lines.nil?
         end
         xml.target!
       end
