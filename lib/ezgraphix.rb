@@ -204,7 +204,7 @@ unless defined? Ezgraphix
 
       #Builds the xml to feed the chart.
       def to_xml( xml_options = {} )
-        options = parse_options(self.render_options)
+        options = parse_options(self.render_options.dup.delete_if{|k,v| [:w, :h, :div_name].include?(k.to_sym) })
         xml = Builder::XmlMarkup.new( xml_options )
 
         xml.tag!( :graph, options ) do |graph|
